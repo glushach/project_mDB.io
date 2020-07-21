@@ -14,43 +14,100 @@
 
 'use strict';
 
-const movieDB = {
-    movies: [
-        "Логан",
-        "Лига справедливости",
-        "Ла-ла лэнд",
-        "Одержимость",
-        "Скотт Пилигрим против..."
-    ]
-};
+document.addEventListener('DOMContentLoaded', () => {
+  //Сработает только при полной загрузке DOM структуры
+    const movieDB = {
+      movies: [
+          "Логан",
+          "Лига справедливости",
+          "Ла-ла лэнд",
+          "Одержимость",
+          "Скотт Пилигрим против..."
+      ]
+    };
 
-const adv = document.querySelectorAll('.promo__adv img'),
-      poster = document.querySelector('.promo__bg'),
-      genre = poster.querySelector('.promo__genre'),
-      movieList = document.querySelector('.promo__interactive-list');
-//Вариант 1
-adv.forEach(item => { //Лучше использовать стрелочную функцию
-  item.remove();
-});
-//Вариант 2
-// adv.forEach(function (item) { //Безимяная функция, которая создается Здесь и сейчас и она принимает 1 аргумент item, который приходит с псевдомассива
-//   item.remove();
-// });
+    const adv = document.querySelectorAll('.promo__adv img'),
+        poster = document.querySelector('.promo__bg'),
+        genre = poster.querySelector('.promo__genre'),
+        movieList = document.querySelector('.promo__interactive-list'),
+        addForm = document.querySelector('form.add'),
+        addInput = document.querySelector('.adding__input'),
+        checkbox = addForm.querySelector('[type="checkbox"]');
+//event - объект события. Помните, что когда нужно отменить стандартное поведение бразера, аргументом функции мередаем event
+    addForm.addEventListener('submit', (event) => {
+      event.preventDefault();
 
-genre.textContent = 'Драма';
+      let newFilm = addInput.value;
+      const favotite = checkbox.checked;
 
-poster.style.backgroundImage = 'url("img/bg.jpg")';
+      if(newFilm) {
 
-movieList.innerHTML = '';
+        if (newFilm.length > 21) {
+          newFilm = `${newFilm.substring(0, 22)}...`;
+        }
 
-movieDB.movies.sort();
+        if(favotite) {
+          console.log('Добавляем любимый фильм');
+        }
 
-movieDB.movies.forEach((film, i) => {
-  movieList.innerHTML += `
-    <li class="promo__interactive-item"> ${i + 1} ${film}
-      <div class="delete"></div>
-    </li>
-  `;
+        movieDB.movies.push(newFilm);
+        sortArr(movieDB.movies);
+  
+        createMovieList(movieDB.movies, movieList);
+      }
+
+      event.target.reset();
+
+    });
+
+    const deleteAdv = (arr) => {
+      //Вариант 1
+      arr.forEach(item => { //Лучше использовать стрелочную функцию
+      item.remove();
+      });
+    };
+
+    //Вариант 2
+    // adv.forEach(function (item) { //Безимяная функция, которая создается Здесь и сейчас и она принимает 1 аргумент item, который приходит с псевдомассива
+    //   item.remove();
+    // });
+
+    const makeChanges = () => {
+      genre.textContent = 'Драма';
+
+      poster.style.backgroundImage = 'url("img/bg.jpg")';
+    };
+
+    const sortArr = (arr) => {
+      arr.sort();
+    };
+
+  function createMovieList(films, parent) {
+    parent.innerHTML = '';
+    sortArr(films);
+
+    films.forEach((film, i) => {
+        parent.innerHTML += `
+        <li class="promo__interactive-item"> ${i + 1} ${film}
+          <div class="delete"></div>
+        </li>
+      `;
+    });
+
+    document.querySelectorAll('.delete').forEach((btn, i) => {
+      btn.addEventListener('click', () => {
+        btn.parentElement.remove();
+        movieDB.movies.splice(i, 1);
+
+        createMovieList(films, parent);
+      });
+    });
+  }
+
+  deleteAdv(adv);
+  makeChanges();
+  createMovieList(movieDB.movies, movieList);
+
 });
 
 //+= оператор "дополнительное присваивание"
